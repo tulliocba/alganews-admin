@@ -15,7 +15,7 @@ export const DefaultLayout = ({children}: DefaultLayoutProps) => {
     return (
         <Layout>
             <Header/>
-            <Layout>
+            <Layout id={'PageLayout'}>
                 <SideBar/>
                 <Layout style={{padding: "0 24px 24px"}}>
                     <Breadcrumb/>
