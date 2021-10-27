@@ -2,17 +2,22 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Provider} from "react-redux";
 import reportWebVitals from "./reportWebVitals";
-import {store} from "./core/store";
-import App from "./App";
+import {BrowserRouter} from "react-router-dom";
+
+import {Routes} from "./app/routes";
 import {DefaultLayout} from "./app/layouts/Default";
-import "./index.css";
+import {store} from "./core/store";
+
+import "./index.less";
 
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            <DefaultLayout>
-                <App/>
-            </DefaultLayout>
+            <BrowserRouter>
+                <DefaultLayout>
+                    <Routes />
+                </DefaultLayout>
+            </BrowserRouter>
         </Provider>
     </React.StrictMode>,
     document.getElementById("root")

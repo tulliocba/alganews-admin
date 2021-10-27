@@ -2,8 +2,6 @@ import {ReactNode} from "react";
 import {Layout} from "antd";
 import {Header} from "./Header";
 import {Content} from "./Content";
-import "antd/dist/antd.css";
-import "./Default.layout.css";
 import {SideBar} from "./SideBar";
 import {Breadcrumb} from "./Breadcrumb";
 

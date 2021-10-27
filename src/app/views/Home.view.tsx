@@ -1,9 +1,9 @@
 import {Col, Divider, Row, Space, Typography} from "antd";
+import {CompanyMetrics} from "../features/CompanyMetrics.feature";
+import {LatestPosts} from "../features/LatestPosts.feature";
 import React from "react";
-import {CompanyMetrics} from "./app/features/CompanyMetrics.feature";
-import {LatestPosts} from "./app/features/LatestPosts.feature";
 
-function App() {
+export const HomeView = () => {
     return (
         <Space direction={'vertical'} size={'small'} style={{maxWidth: '100%'}}>
             <Row>
@@ -19,7 +19,7 @@ function App() {
                     <CompanyMetrics/>
                 </Col>
             </Row>
-            <Divider />
+            <Divider/>
             <Row>
                 <Col span={24}>
                     <Typography.Title level={3}>
@@ -33,5 +33,3 @@ function App() {
         </Space>
     );
 }
-
-export default App;
