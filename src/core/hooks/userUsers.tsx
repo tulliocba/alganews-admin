@@ -12,11 +12,12 @@ export const useUsers = () => {
 
 
     const fetchUsers = useCallback(() => {
-        dispatch(UserActions.getAllUsers())
+        dispatch(UserActions.getAllUsers());
     }, [dispatch]);
 
-    const toggleUserStatus = useCallback((user: User.Detailed | User.Summary ) => {
-        dispatch(UserActions.toggleUserStatus(user))
+    const toggleUserStatus = useCallback(async (user: User.Detailed | User.Summary ) => {
+        await dispatch(UserActions.toggleUserStatus(user));
+        dispatch(UserActions.getAllUsers());
     }, [dispatch]);
 
     return {
