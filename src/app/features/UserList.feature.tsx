@@ -142,6 +142,9 @@ export const UserList: React.FC<UserListProps> = () => {
                     render(createdAt: string) {
                         return format(new Date(createdAt), 'dd/MM/yyyy');
                     },
+                    sorter(a, b) {
+                        return new Date(a.createdAt) > new Date(b.createdAt) ? 1 : -1;
+                    },
                     width: 120,
                     responsive: ['sm']
                 },
@@ -150,7 +153,7 @@ export const UserList: React.FC<UserListProps> = () => {
                     title: 'Ativo',
                     align: 'center',
                     render(active: boolean, user) {
-                        return <Switch defaultChecked={active} onChange={() => {
+                        return <Switch checked={active} onChange={() => {
                             toggleUserStatus(user);
                         }
                         }/>;

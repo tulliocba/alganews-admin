@@ -5,14 +5,22 @@ import {UserOutlined} from "@ant-design/icons";
 import ImageCrop from "antd-img-crop";
 import {CustomError} from "cms-alganews-sdk/dist/CustomError";
 import MaskedInput from "antd-mask-input";
+import {Moment} from 'moment';
+
+type UserFormType = {
+    createdAt: Moment;
+    updatedAt: Moment;
+    birthdate: Moment;
+} & Omit<User.Detailed, 'createdAt' | 'updatedAt' | 'birthdate'>;
 
 interface UserFormProps {
+    user?: UserFormType
 }
 
-export const UserForm: React.FC<UserFormProps> = () => {
+export const UserForm: React.FC<UserFormProps> = ({user}) => {
 
     const [form] = Form.useForm<User.Input>();
-    const [avatar, setAvatar] = useState('');
+    const [avatar, setAvatar] = useState(user?.avatarUrls.default || '');
     const [activeTab, setActiveTab] = useState<'personal' | 'bankAccount'>('personal');
 
     const handleAvatarUpload = useCallback(async (file: File) => {
@@ -31,6 +39,7 @@ export const UserForm: React.FC<UserFormProps> = () => {
             autoComplete={'off'}
             form={form}
             layout={'vertical'}
+            initialValues={user}
             onFinishFailed={(fields) => {
                 let bankAccountErrors = 0;
                 let personalDataErrors = 0;
@@ -66,7 +75,7 @@ export const UserForm: React.FC<UserFormProps> = () => {
                 } catch (error) {
                     if (error instanceof CustomError) {
                         if (error.data?.objects) {
-                            form.setFields(error.data?.objects.map(error =>  {
+                            form.setFields(error.data?.objects.map(error => {
                                 return {
                                     name: error.name
                                         ?.split(/(\.|\[|\])/gi)
@@ -85,8 +94,7 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                     errors: [error.userMessage]
                                 }
                             }));
-                        }
-                        else {
+                        } else {
                             notification.error({
                                 message: error.message
                             });
@@ -111,6 +119,13 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                 handleAvatarUpload(file);
                                 return false;
                             }}
+                            fileList={[
+                                ...(avatar ? [{
+                                    name: 'Avatar',
+                                    uid: ''
+                                }] : [])
+
+                            ]}
                         >
                             <Avatar
                                 style={{cursor: 'pointer'}}
@@ -296,9 +311,9 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                         <MaskedInput
                                             mask={'(11) 11111-1111'}
                                             placeholder={'(27) 99999-0000'}
-                                            onChange={ event => {
+                                            onChange={event => {
                                                 form.setFieldsValue({
-                                                    taxpayerId: event.target.value.replace(/\D/g, '')
+                                                    phone: event.target.value.replace(/\D/g, '')
                                                 });
                                             }}
                                         />
@@ -368,8 +383,8 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                                         {
                                                             async validator(field, value) {
                                                                 if (isNaN(Number(value))) throw Error('Apenas números');
-                                                                if(Number(value) > 100) throw Error('Máximo é 100');
-                                                                if(Number(value) < 0) throw Error('Mínimo é 0');
+                                                                if (Number(value) > 100) throw Error('Máximo é 100');
+                                                                if (Number(value) < 0) throw Error('Mínimo é 0');
 
                                                             }
                                                         }
