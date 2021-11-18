@@ -4,6 +4,7 @@ import {FileService, User, UserService} from "cms-alganews-sdk";
 import {UserOutlined} from "@ant-design/icons";
 import ImageCrop from "antd-img-crop";
 import {CustomError} from "cms-alganews-sdk/dist/CustomError";
+import MaskedInput from "antd-mask-input";
 
 interface UserFormProps {
 }
@@ -24,9 +25,10 @@ export const UserForm: React.FC<UserFormProps> = () => {
         form.setFieldsValue({
             avatarUrl: avatar || undefined
         });
-    }, [avatar]);
+    }, [avatar, form]);
     return (
         <Form
+            autoComplete={'off'}
             form={form}
             layout={'vertical'}
             onFinishFailed={(fields) => {
@@ -66,10 +68,28 @@ export const UserForm: React.FC<UserFormProps> = () => {
                         if (error.data?.objects) {
                             form.setFields(error.data?.objects.map(error =>  {
                                 return {
-                                    name: error.name?.split(".") as string[],
+                                    name: error.name
+                                        ?.split(/(\.|\[|\])/gi)
+                                        .filter(
+                                            (str) =>
+                                                str !== '.' &&
+                                                str !== '[' &&
+                                                str !== ']' &&
+                                                str !== ''
+                                        )
+                                        .map((str) =>
+                                            isNaN(Number(str))
+                                                ? str
+                                                : Number(str)
+                                        ) as string[],
                                     errors: [error.userMessage]
                                 }
                             }));
+                        }
+                        else {
+                            notification.error({
+                                message: error.message
+                            });
                         }
                     } else {
                         notification.error({
@@ -142,6 +162,10 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                 required: true,
                                 message: 'O campo é obrigatório',
                             },
+                            {
+                                max: 255,
+                                message: 'A biografia não pode ter mais de 255 caracteres.'
+                            }
                         ]}
                     >
                         <Input.TextArea rows={5}/>
@@ -159,6 +183,10 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                 required: true,
                                 message: 'O campo é obrigatório',
                             },
+                            {
+                                type: 'enum',
+                                enum: ['EDITOR', 'ASSISTANT', 'MANAGER']
+                            }
                         ]}
                     >
                         <Select placeholder={'Selecione um perfil'}>
@@ -265,8 +293,14 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                             },
                                         ]}
                                     >
-                                        <Input
+                                        <MaskedInput
+                                            mask={'(11) 11111-1111'}
                                             placeholder={'(27) 99999-0000'}
+                                            onChange={ event => {
+                                                form.setFieldsValue({
+                                                    taxpayerId: event.target.value.replace(/\D/g, '')
+                                                });
+                                            }}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -281,7 +315,7 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                             },
                                         ]}
                                     >
-                                        <Input placeholder={'111.222.333-44'}/>
+                                        <MaskedInput mask={'111.111.111-11'} placeholder={'111.222.333-44'}/>
                                     </Form.Item>
                                 </Col>
                                 <Col lg={8}>
@@ -331,6 +365,14 @@ export const UserForm: React.FC<UserFormProps> = () => {
                                                             required: true,
                                                             message: '',
                                                         },
+                                                        {
+                                                            async validator(field, value) {
+                                                                if (isNaN(Number(value))) throw Error('Apenas números');
+                                                                if(Number(value) > 100) throw Error('Máximo é 100');
+                                                                if(Number(value) < 0) throw Error('Mínimo é 0');
+
+                                                            }
+                                                        }
                                                     ]}
                                                 >
                                                     <Input/>

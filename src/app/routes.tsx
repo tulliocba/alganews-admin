@@ -6,8 +6,37 @@ import {PaymentListView} from "./views/PaymentList.view";
 import {PaymentCreateView} from "./views/PaymentCreate.view";
 import {CashFlowRevenuesView} from "./views/CashFlowRevenues.view";
 import {CashFlowExpensesView} from "./views/CashFlowExpenses.view";
+import {useEffect} from "react";
+import {CustomError} from "cms-alganews-sdk/dist/CustomError";
+import { message, notification } from 'antd';
 
 export const Routes = () => {
+    useEffect(() => {
+        window.onunhandledrejection = ({ reason }) => {
+            if (reason instanceof CustomError) {
+                if (reason.data?.objects) {
+                    reason.data.objects.forEach((error) => {
+                        message.error(error.userMessage);
+                    });
+                } else {
+                    notification.error({
+                        message: reason.message,
+                        description:
+                            reason.data?.detail === 'Network Error'
+                                ? 'Erro na rede'
+                                : reason.data?.detail,
+                    });
+                }
+            } else {
+                notification.error({
+                    message: 'Houve um erro',
+                });
+            }
+        };
+
+        window.onunhandledrejection = null;
+    }, []);
+
     return <Switch>
         <Route path={'/'} component={HomeView} exact/>
         <Route path={'/users/new'} component={UserCreateView} exact/>

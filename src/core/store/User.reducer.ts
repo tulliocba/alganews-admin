@@ -1,5 +1,6 @@
 import {User, UserService} from "cms-alganews-sdk";
 import {createAsyncThunk, createReducer, isFulfilled, isPending, isRejected} from "@reduxjs/toolkit";
+import {notification} from "antd";
 
 interface UserState {
     list: User.Summary[];
@@ -35,8 +36,11 @@ export const UserReducer = createReducer(initialState, builder => {
         .addMatcher(isSuccess, state => {
             state.fetching = false
         })
-        .addMatcher(isError, state => {
+        .addMatcher(isError, (state, action) => {
             state.fetching = false
+            notification.error({
+                message: action.error.message
+            })
         })
         .addMatcher(isLoading, state => {
             state.fetching = true
