@@ -15,9 +15,13 @@ type UserFormType = {
 
 interface UserFormProps {
     user?: UserFormType
+    onUpdate?: (user: User.Input) => any;
 }
 
-export const UserForm: React.FC<UserFormProps> = ({user}) => {
+export const UserForm: React.FC<UserFormProps> = ({
+                                                      user,
+                                                      onUpdate
+                                                  }) => {
 
     const [form] = Form.useForm<User.Input>();
     const [avatar, setAvatar] = useState(user?.avatarUrls.default || '');
@@ -34,6 +38,7 @@ export const UserForm: React.FC<UserFormProps> = ({user}) => {
             avatarUrl: avatar || undefined
         });
     }, [avatar, form]);
+
     return (
         <Form
             autoComplete={'off'}
@@ -65,8 +70,19 @@ export const UserForm: React.FC<UserFormProps> = ({user}) => {
                 }
             }}
             onFinish={async (user: User.Input) => {
+
+                const userDTO: User.Input = {
+                    ...user,
+                    phone: user.phone.replace(/\D/g, ''),
+                    taxpayerId: user.taxpayerId.replace(/\D/g, '')
+                }
+
+                if (user) {
+                    return onUpdate && onUpdate(userDTO);
+                }
+
                 try {
-                    await UserService.insertNewUser(user);
+                    await UserService.insertNewUser(userDTO);
 
                     notification.success({
                         message: 'Sucesso',
@@ -311,11 +327,6 @@ export const UserForm: React.FC<UserFormProps> = ({user}) => {
                                         <MaskedInput
                                             mask={'(11) 11111-1111'}
                                             placeholder={'(27) 99999-0000'}
-                                            onChange={event => {
-                                                form.setFieldsValue({
-                                                    phone: event.target.value.replace(/\D/g, '')
-                                                });
-                                            }}
                                         />
                                     </Form.Item>
                                 </Col>
@@ -492,7 +503,7 @@ export const UserForm: React.FC<UserFormProps> = ({user}) => {
                 <Col lg={24}>
                     <Row justify={'end'}>
                         <Button type={'primary'} htmlType={'submit'}>
-                            Cadastrar usuário
+                            {user?.id ? 'Atualizar ' : 'Cadastrar '} usuário
                         </Button>
                     </Row>
                 </Col>

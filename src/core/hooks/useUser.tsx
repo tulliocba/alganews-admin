@@ -1,15 +1,25 @@
 import {useCallback, useState} from "react";
-import {User, UserService} from "cms-alganews-sdk";
+import {ResourceNotFoundError, User, UserService} from "cms-alganews-sdk";
 
 export const useUser = () => {
     const [user, setUser] = useState<User.Detailed>();
 
-    const fetchUser = useCallback((userId: number) => {
-        UserService.getDetailedUser(userId)
-            .then(setUser);
+    const [userNotFound, setUserNotFound] = useState(false);
+
+    const fetchUser = useCallback(async (userId: number) => {
+        try {
+            await UserService.getDetailedUser(userId)
+                .then(setUser);
+        } catch (e) {
+            if (e instanceof ResourceNotFoundError) {
+                setUserNotFound(true);
+            } else {
+                throw e;
+            }
+        }
     }, [])
 
     return {
-        user, fetchUser
+        user, fetchUser, userNotFound
     }
 }

@@ -1,18 +1,22 @@
 import React, {useCallback, useEffect} from "react";
 import {UserForm} from "../features/UserForm";
 import {useUser} from "../../core/hooks/useUser";
-import {Skeleton} from "antd";
-import {User} from "cms-alganews-sdk";
+import {Card, notification, Skeleton} from "antd";
+import {User, UserService} from "cms-alganews-sdk";
 import moment from 'moment';
+import {Redirect, useParams} from "react-router-dom";
 
 interface UserEditViewProps {
 }
 
 export const UserEditView: React.FC<UserEditViewProps> = () => {
-    const {user, fetchUser} = useUser();
+    const {id} = useParams<{ id: string }>();
+    const {user, fetchUser, userNotFound} = useUser();
+    const userId = Number(id);
+
     useEffect(() => {
-        fetchUser(1);
-    }, [fetchUser]);
+        if (!isNaN(userId)) fetchUser(userId);
+    }, [fetchUser, userId]);
 
     const transformUserData = useCallback((user: User.Detailed) => {
         return {
@@ -21,13 +25,25 @@ export const UserEditView: React.FC<UserEditViewProps> = () => {
             updatedAt: moment(user.updatedAt),
             birthdate: moment(user.birthdate)
         }
-    }, [])
+    }, []);
 
-    if (!user) return <Skeleton />
+    if (isNaN(userId)) return <Redirect to={'/users'}/>;
+
+    if (userNotFound) return <Card>Usuário não encontrado!</Card>;
+
+    if (!user) return <Skeleton/>
+
+    function handleUserUpdate(user: User.Input) {
+        UserService.updateExistingUser(userId, user).then(() => {
+            notification.success({
+                message: "Usuário alterado com sucesso!"
+            })
+        })
+    }
 
     return (
         <>
-            <UserForm user={transformUserData(user)} />
+            <UserForm onUpdate={handleUserUpdate} user={transformUserData(user)}/>
         </>
     );
 };

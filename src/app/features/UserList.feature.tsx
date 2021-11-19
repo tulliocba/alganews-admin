@@ -5,6 +5,7 @@ import {EditOutlined, EyeOutlined, SearchOutlined} from "@ant-design/icons";
 import {User} from "cms-alganews-sdk";
 import {format} from "date-fns";
 import {ColumnProps} from "antd/es/table";
+import {Link} from "react-router-dom";
 
 interface UserListProps {
 }
@@ -166,10 +167,12 @@ export const UserList: React.FC<UserListProps> = () => {
                     dataIndex: 'id',
                     title: 'Ações',
                     align: 'center',
-                    render() {
+                    render(id: number) {
                         return <Space size={4}>
                             <Button size={"small"} icon={<EyeOutlined/>}/>
-                            <Button size={"small"} icon={<EditOutlined/>}/>
+                            <Link to={`/users/edit/${id}`}>
+                                <Button size={"small"} icon={<EditOutlined/>}/>
+                            </Link>
                         </Space>
                     },
                     width: 100,
