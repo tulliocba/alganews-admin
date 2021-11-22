@@ -169,7 +169,9 @@ export const UserList: React.FC<UserListProps> = () => {
                     align: 'center',
                     render(id: number) {
                         return <Space size={4}>
-                            <Button size={"small"} icon={<EyeOutlined/>}/>
+                            <Link to={`/users/${id}`}>
+                                <Button size={"small"} icon={<EyeOutlined/>}/>
+                            </Link>
                             <Link to={`/users/edit/${id}`}>
                                 <Button size={"small"} icon={<EditOutlined/>}/>
                             </Link>

@@ -10,6 +10,7 @@ import {useEffect} from "react";
 import {CustomError} from "cms-alganews-sdk/dist/CustomError";
 import { message, notification } from 'antd';
 import {UserEditView} from "./views/UserEdit.view";
+import {UserDetailsView} from "./views/UserDetails.view";
 
 export const Routes = () => {
     useEffect(() => {
@@ -42,6 +43,7 @@ export const Routes = () => {
         <Route path={'/'} component={HomeView} exact/>
         <Route path={'/users/new'} component={UserCreateView} exact/>
         <Route path={'/users/edit/:id'} component={UserEditView} exact/>
+        <Route path={'/users/:id'} component={UserDetailsView} exact/>
         <Route path={'/users'} component={UserListView} exact/>
         <Route path={'/payments'} component={PaymentListView} exact/>
         <Route path={'/payments/new'} component={PaymentCreateView} exact/>
