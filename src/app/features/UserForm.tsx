@@ -6,6 +6,7 @@ import ImageCrop from "antd-img-crop";
 import {CustomError} from "cms-alganews-sdk/dist/CustomError";
 import MaskedInput from "antd-mask-input";
 import {Moment} from 'moment';
+import {useHistory} from "react-router-dom";
 
 type UserFormType = {
     createdAt: Moment;
@@ -15,7 +16,7 @@ type UserFormType = {
 
 interface UserFormProps {
     user?: UserFormType
-    onUpdate?: (user: User.Input) => any;
+    onUpdate?: (user: User.Input) => Promise<any>;
 }
 
 export const UserForm: React.FC<UserFormProps> = ({
@@ -26,6 +27,8 @@ export const UserForm: React.FC<UserFormProps> = ({
     const [form] = Form.useForm<User.Input>();
     const [avatar, setAvatar] = useState(user?.avatarUrls.default || '');
     const [activeTab, setActiveTab] = useState<'personal' | 'bankAccount'>('personal');
+    const [loading, setLoading] = useState(false);
+    const history = useHistory();
 
     const handleAvatarUpload = useCallback(async (file: File) => {
             const avatarSource = await FileService.upload(file);
@@ -70,7 +73,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                 }
             }}
             onFinish={async (user: User.Input) => {
-
+                setLoading(true);
                 const userDTO: User.Input = {
                     ...user,
                     phone: user.phone.replace(/\D/g, ''),
@@ -78,11 +81,13 @@ export const UserForm: React.FC<UserFormProps> = ({
                 }
 
                 if (user) {
-                    return onUpdate && onUpdate(userDTO);
+                    return onUpdate && onUpdate(userDTO).finally(() => setLoading(false));
                 }
 
                 try {
                     await UserService.insertNewUser(userDTO);
+
+                    history.push("/users");
 
                     notification.success({
                         message: 'Sucesso',
@@ -120,6 +125,8 @@ export const UserForm: React.FC<UserFormProps> = ({
                             message: "Houve um error!"
                         });
                     }
+                } finally {
+                    setLoading(false);
                 }
             }}
         >
@@ -502,7 +509,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                 </Col>
                 <Col lg={24}>
                     <Row justify={'end'}>
-                        <Button type={'primary'} htmlType={'submit'}>
+                        <Button loading={loading} type={'primary'} htmlType={'submit'}>
                             {user?.id ? 'Atualizar ' : 'Cadastrar '} usuário
                         </Button>
                     </Row>

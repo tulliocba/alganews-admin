@@ -4,7 +4,8 @@ import {useUser} from "../../core/hooks/useUser";
 import {Card, notification, Skeleton} from "antd";
 import {User, UserService} from "cms-alganews-sdk";
 import moment from 'moment';
-import {Redirect, useParams} from "react-router-dom";
+import {Redirect, useHistory, useParams} from "react-router-dom";
+import {NotFoundError} from "../components/NotFoundError";
 
 interface UserEditViewProps {
 }
@@ -13,6 +14,7 @@ export const UserEditView: React.FC<UserEditViewProps> = () => {
     const {id} = useParams<{ id: string }>();
     const {user, fetchUser, userNotFound} = useUser();
     const userId = Number(id);
+    const history = useHistory();
 
     useEffect(() => {
         if (!isNaN(userId)) fetchUser(userId);
@@ -29,12 +31,21 @@ export const UserEditView: React.FC<UserEditViewProps> = () => {
 
     if (isNaN(userId)) return <Redirect to={'/users'}/>;
 
-    if (userNotFound) return <Card>Usuário não encontrado!</Card>;
+    if (userNotFound) return (
+        <Card>
+            <NotFoundError
+                title={'Usuário não encontrado'}
+                actionDestination={'/users'}
+                actionTitle={'Voltar para lista de usuários'}
+            />
+        </Card>
+    );;
 
     if (!user) return <Skeleton/>
 
-    function handleUserUpdate(user: User.Input) {
-        UserService.updateExistingUser(userId, user).then(() => {
+    async function handleUserUpdate(user: User.Input) {
+       await UserService.updateExistingUser(userId, user).then(() => {
+           history.push("/users");
             notification.success({
                 message: "Usuário alterado com sucesso!"
             })
